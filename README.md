@@ -1,7 +1,6 @@
-# Tauri + React + Typescript
+# Copy Cat
 
-This template should help get you started developing with Tauri, React and Typescript in Vite.
+A simple clipboard manager written in Taurii for macOS
 
-## Recommended IDE Setup
 
-- [VS Code](https://code.visualstudio.com/) + [Tauri](https://marketplace.visualstudio.com/items?itemName=tauri-apps.tauri-vscode) + [rust-analyzer](https://marketplace.visualstudio.com/items?itemName=rust-lang.rust-analyzer)
+- [Invite Link (next invite to be send on 4th feb 2024)](https://docs.google.com/forms/d/e/1FAIpQLSeZefibNzqa9g-XI4FpebpJpcKVsVd5_6Z8Sm5sbiJHJHfE6w/viewform?usp=sf_link)
