@@ -8,11 +8,13 @@ use tauri_plugin_positioner::{Position, WindowExt};
 // use tauri_plugin_clipboard::ManagerExt;
 pub struct CopyClipState {
     pub clip_board_data: Vec<String>,
+    pub clip_board_files: Vec<String>,
 }
 impl CopyClipState {
     pub fn reset(&mut self) {
         // clear state
         self.clip_board_data = Vec::new();
+        self.clip_board_files = Vec::new();
     }
 }
 
@@ -25,7 +27,14 @@ fn get_clipboard_data(state: tauri::State<'_, AppState>) -> Vec<String> {
 }
 
 #[tauri::command]
+fn get_clipboard_files(state: tauri::State<'_, AppState>) -> Vec<String> {
+    let state = state.0.lock().unwrap();
+    return state.clip_board_files.clone();
+}
+
+#[tauri::command]
 fn add_clipboard_data(state: tauri::State<'_, AppState>, data: String) -> Vec<String> {
+    println!("data: {}", data);
     let mut state = state.0.lock().unwrap();
     //check if already present in state if present delete that copy and append at last in state
     let index = state.clip_board_data.iter().position(|x: &String| *x == data);
@@ -34,6 +43,20 @@ fn add_clipboard_data(state: tauri::State<'_, AppState>, data: String) -> Vec<St
     }
     state.clip_board_data.push(data.clone());
     return state.clip_board_data.clone();
+}
+
+#[tauri::command]
+fn add_clipboard_files(state: tauri::State<'_, AppState>, data: String) -> Vec<String> {
+    println!("data: {}", data);
+    let mut state = state.0.lock().unwrap();
+    //check if already present in state if present delete that copy and append at last in state
+    let index = state.clip_board_files.iter().position(|x: &String| *x == data);
+    if let Some(i) = index {
+        state.clip_board_files.remove(i);
+    }
+    state.clip_board_files.push(data.clone());
+    print!("files: {:?}", state.clip_board_files);
+    return state.clip_board_files.clone();
 }
 
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
@@ -67,6 +90,7 @@ fn main() {
     tauri::Builder::default()
         .manage(AppState(Mutex::new(CopyClipState {
             clip_board_data: Vec::new(),
+            clip_board_files: Vec::new(),
         })))
         .plugin(tauri_plugin_positioner::init())
         .system_tray(SystemTray::new().with_menu(system_tray_menu))
@@ -132,7 +156,7 @@ fn main() {
             // clipboard.write_text("macbook air".to_string()).unwrap();
             Ok(())
         })
-        .invoke_handler(tauri::generate_handler![get_clipboard_data,add_clipboard_data])
+        .invoke_handler(tauri::generate_handler![get_clipboard_data,add_clipboard_data,get_clipboard_files,add_clipboard_files])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
