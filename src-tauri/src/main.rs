@@ -13,7 +13,7 @@ pub type Clip = osx::OSXClipboard;
 // use tauri_plugin_clipboard::ManagerExt;
 pub struct CopyClipState {
     pub clip_board_data: Vec<String>,
-    pub clip_board_files: Vec<String>,
+    pub clip_board_files: Vec<Vec<String>>,
 }
 impl CopyClipState {
     pub fn reset(&mut self) {
@@ -32,7 +32,7 @@ fn get_clipboard_data(state: tauri::State<'_, AppState>) -> Vec<String> {
 }
 
 #[tauri::command]
-fn get_clipboard_files(state: tauri::State<'_, AppState>) -> Vec<String> {
+fn get_clipboard_files(state: tauri::State<'_, AppState>) -> Vec<Vec<String>> {
     let state = state.0.lock().unwrap();
     return state.clip_board_files.clone();
 }
@@ -52,34 +52,55 @@ fn add_clipboard_data(state: tauri::State<'_, AppState>, data: String) -> Vec<St
     return state.clip_board_data.clone();
 }
 
+
+
 #[tauri::command]
-fn add_clipboard_files(state: tauri::State<'_, AppState>, data: String) -> Vec<String> {
+fn add_clipboard_files(state: tauri::State<'_, AppState>, data: Vec<String>) -> Vec<Vec<String>> {
     let mut state: std::sync::MutexGuard<'_, CopyClipState> = state.0.lock().unwrap();
-    //check if already present in state if present delete that copy and append at last in state
+    // check if data array is already present in state if present delete that copy and append at last in state
     let index = state
         .clip_board_files
         .iter()
-        .position(|x: &String| *x == data);
+        .position(|x: &Vec<String>| *x == data);
+
     if let Some(i) = index {
         state.clip_board_files.remove(i);
     }
     state.clip_board_files.push(data.clone());
-    print!("files: {:?}", state.clip_board_files);
+    //check if already present in state if present delete that copy and append at last in state
+    // let index = state
+    //     .clip_board_files
+    //     .iter()
+    //     .position(|x: &String| *x == data);
+    // if let Some(i) = index {
+    //     state.clip_board_files.remove(i);
+    // }
+    // state.clip_board_files.push(data.clone());
+    // print!("files: {:?}", state.clip_board_files);
+    // return state.clip_board_files.clone();
+    // check if already present in state if present delete that copy and append at last in state
     return state.clip_board_files.clone();
+
 }
 
 
 #[tauri::command]
-fn copy_files_from_paths(file: String) -> (){
+fn copy_files_from_paths(files: Vec<String>)-> (){
+    if files.is_empty() {
+        println!("[-] No file paths provided");
+        return;
+    }
 
-    let mut entries: Vec<std::ffi::OsString> = Vec::new();
+    let mut entries = Vec::new();
     let cur_dir = current_dir().expect("Get current dir error");
 
-        let target = cur_dir.join(&file);
+    for path in files{
+        println!("copied {:?}", &path);
+        let target = cur_dir.join(&path);
         entries.push(target.into_os_string());
-    
+    }
 
-    let clip: osx::OSXClipboard = Clip::new(entries).unwrap();
+    let clip = Clip::new(entries).unwrap();
     let _ = clip.copy_files();
 }
 
