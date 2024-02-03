@@ -67,18 +67,6 @@ fn add_clipboard_files(state: tauri::State<'_, AppState>, data: Vec<String>) -> 
         state.clip_board_files.remove(i);
     }
     state.clip_board_files.push(data.clone());
-    //check if already present in state if present delete that copy and append at last in state
-    // let index = state
-    //     .clip_board_files
-    //     .iter()
-    //     .position(|x: &String| *x == data);
-    // if let Some(i) = index {
-    //     state.clip_board_files.remove(i);
-    // }
-    // state.clip_board_files.push(data.clone());
-    // print!("files: {:?}", state.clip_board_files);
-    // return state.clip_board_files.clone();
-    // check if already present in state if present delete that copy and append at last in state
     return state.clip_board_files.clone();
 
 }
