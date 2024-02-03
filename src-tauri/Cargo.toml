@@ -20,8 +20,12 @@ tauri-plugin-window-state = { git = "https://github.com/tauri-apps/plugins-works
 tauri-plugin-store = { git = "https://github.com/tauri-apps/plugins-workspace", branch = "v1" }
 tauri-plugin-single-instance = { git = "https://github.com/tauri-apps/plugins-workspace", branch = "v1" }
 window-shadows = {git = "https://github.com/tauri-apps/window-shadows", branch = "dev" }
-tauri = { version = "1.5", features = ["macos-private-api", "shell-open", "system-tray"] }
+tauri = { version = "1.5", features = ["macos-private-api", "shell-open", "system-tray" ,"clipboard"] }
 tauri-plugin-positioner = { version = "1.0.4", features = ["system-tray"] }
+rand = "0.7.3"
+glob = "0.3.0"
+anyhow = "1.0.38"
+cocoa = "0.24.0"
 
 [features]
 # this feature is used for production builds or when `devPath` points to the filesystem

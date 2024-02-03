@@ -1,9 +1,14 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
+use std::env::current_dir;
 use std::sync::Mutex;
 use tauri::{CustomMenuItem, Manager, SystemTray, SystemTrayEvent, SystemTrayMenu};
 use tauri_plugin_positioner::{Position, WindowExt};
+mod common;
+mod osx;
+pub use common::Clipboard;
+pub type Clip = osx::OSXClipboard;
 
 // use tauri_plugin_clipboard::ManagerExt;
 pub struct CopyClipState {
@@ -37,7 +42,10 @@ fn add_clipboard_data(state: tauri::State<'_, AppState>, data: String) -> Vec<St
     println!("data: {}", data);
     let mut state = state.0.lock().unwrap();
     //check if already present in state if present delete that copy and append at last in state
-    let index = state.clip_board_data.iter().position(|x: &String| *x == data);
+    let index = state
+        .clip_board_data
+        .iter()
+        .position(|x: &String| *x == data);
     if let Some(i) = index {
         state.clip_board_data.remove(i);
     }
@@ -48,15 +56,39 @@ fn add_clipboard_data(state: tauri::State<'_, AppState>, data: String) -> Vec<St
 #[tauri::command]
 fn add_clipboard_files(state: tauri::State<'_, AppState>, data: String) -> Vec<String> {
     println!("data: {}", data);
-    let mut state = state.0.lock().unwrap();
+    let mut state: std::sync::MutexGuard<'_, CopyClipState> = state.0.lock().unwrap();
     //check if already present in state if present delete that copy and append at last in state
-    let index = state.clip_board_files.iter().position(|x: &String| *x == data);
+    let index = state
+        .clip_board_files
+        .iter()
+        .position(|x: &String| *x == data);
     if let Some(i) = index {
         state.clip_board_files.remove(i);
     }
     state.clip_board_files.push(data.clone());
     print!("files: {:?}", state.clip_board_files);
     return state.clip_board_files.clone();
+}
+
+#[tauri::command]
+fn do_add_log(file: String){
+    println!("file: {:?}", file);
+}
+
+#[tauri::command]
+fn copy_files_from_paths(file: String) -> (){
+    println!("file_paths: {:x?}", file);
+
+    let mut entries: Vec<std::ffi::OsString> = Vec::new();
+    let cur_dir = current_dir().expect("Get current dir error");
+
+        println!("copied {:?}", &file);
+        let target = cur_dir.join(&file);
+        entries.push(target.into_os_string());
+    
+
+    let clip: osx::OSXClipboard = Clip::new(entries).unwrap();
+    let _ = clip.copy_files();
 }
 
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
@@ -85,7 +117,6 @@ fn greet(name: &str) -> String {
 
 fn main() {
     let system_tray_menu: SystemTrayMenu = SystemTrayMenu::new();
-    
 
     tauri::Builder::default()
         .manage(AppState(Mutex::new(CopyClipState {
@@ -156,7 +187,14 @@ fn main() {
             // clipboard.write_text("macbook air".to_string()).unwrap();
             Ok(())
         })
-        .invoke_handler(tauri::generate_handler![get_clipboard_data,add_clipboard_data,get_clipboard_files,add_clipboard_files])
+        .invoke_handler(tauri::generate_handler![
+            get_clipboard_data,
+            add_clipboard_data,
+            get_clipboard_files,
+            add_clipboard_files,
+            copy_files_from_paths,
+            do_add_log
+        ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
