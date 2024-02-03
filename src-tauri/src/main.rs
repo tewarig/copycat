@@ -39,7 +39,6 @@ fn get_clipboard_files(state: tauri::State<'_, AppState>) -> Vec<String> {
 
 #[tauri::command]
 fn add_clipboard_data(state: tauri::State<'_, AppState>, data: String) -> Vec<String> {
-    println!("data: {}", data);
     let mut state = state.0.lock().unwrap();
     //check if already present in state if present delete that copy and append at last in state
     let index = state
@@ -55,7 +54,6 @@ fn add_clipboard_data(state: tauri::State<'_, AppState>, data: String) -> Vec<St
 
 #[tauri::command]
 fn add_clipboard_files(state: tauri::State<'_, AppState>, data: String) -> Vec<String> {
-    println!("data: {}", data);
     let mut state: std::sync::MutexGuard<'_, CopyClipState> = state.0.lock().unwrap();
     //check if already present in state if present delete that copy and append at last in state
     let index = state
@@ -70,19 +68,13 @@ fn add_clipboard_files(state: tauri::State<'_, AppState>, data: String) -> Vec<S
     return state.clip_board_files.clone();
 }
 
-#[tauri::command]
-fn do_add_log(file: String){
-    println!("file: {:?}", file);
-}
 
 #[tauri::command]
 fn copy_files_from_paths(file: String) -> (){
-    println!("file_paths: {:x?}", file);
 
     let mut entries: Vec<std::ffi::OsString> = Vec::new();
     let cur_dir = current_dir().expect("Get current dir error");
 
-        println!("copied {:?}", &file);
         let target = cur_dir.join(&file);
         entries.push(target.into_os_string());
     
@@ -192,8 +184,7 @@ fn main() {
             add_clipboard_data,
             get_clipboard_files,
             add_clipboard_files,
-            copy_files_from_paths,
-            do_add_log
+            copy_files_from_paths
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
