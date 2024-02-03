@@ -5,7 +5,6 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import { FaCopy } from "react-icons/fa";
-import { writeBinaryFile, BaseDirectory } from "@tauri-apps/api/fs";
 import {
   readText,
   readFiles,
@@ -15,14 +14,13 @@ import {
   onTextUpdate,
   onFilesUpdate,
 } from "tauri-plugin-clipboard-api";
-// import { Store } from "tauri-plugin-store-api";
 
 import "./App.css";
 
 function App() {
   const [monitorRunning, setMonitorRunning] = useState<boolean>(false);
   const [localStore, setLocalStore] = useState<string[]>();
-  const [files, setFiles] = useState<string[] | undefined>();
+  const [files, setFiles] = useState<string[][] | undefined>();
 
   onTextUpdate(async () => {
     const result = (await invoke("add_clipboard_data", {
@@ -33,27 +31,32 @@ function App() {
   });
 
   onFilesUpdate(async () => {
-    setFiles(await readFiles());
-    const result = (await invoke("add_clipboard_files", {
-      data: await readFiles(),
-    })) as string[];
+    let result: string[][] = [];
+    try {
+      console.log(await readFiles());
+      result = (await invoke("add_clipboard_files", {
+        data: await readFiles(),
+      })) as string[][];
+    } catch (error) {
+      console.log(error);
+    }
     const reversedResult = result.reverse();
     setFiles(reversedResult);
   });
 
   const getDataOnMount = async () => {
     const textData = (await invoke("get_clipboard_data")) as string[];
-    const fileData = (await invoke("get_clipboard_files")) as string[];
+    const fileData = (await invoke("get_clipboard_files")) as string[][];
 
     const reversedTextData = textData.reverse();
     const reversedFileData = fileData.reverse();
 
     setLocalStore(reversedTextData);
-    setLocalStore(reversedFileData);
+    setFiles(reversedFileData);
   };
 
-  const writeFile = async (fileName: string) => {
-   await invoke("copy_files_from_paths", { file: fileName }) as string;
+  const writeFile = async (files: string[]) => {
+    (await invoke("copy_files_from_paths", { files })) as string;
   };
 
   useEffect(() => {
@@ -96,15 +99,18 @@ function App() {
           </ScrollArea>
         </TabsContent>
         <TabsContent value="files">
-          {JSON.stringify(files)}
-          {files?.map((text, index) => (
+          {files?.map((copyFiles, index) => (
             <div className="p-2">
               <div
                 key={index}
                 className="flex justify-between items-center m-2"
               >
-                <div>{text.substring(0, 70)}</div>
-                <Button onClick={() => writeFile(text)}>
+                <div>
+                  {copyFiles.map((file) => (
+                    <div>{file.substring(0, 70)} </div>
+                  ))}
+                </div>
+                <Button onClick={() => writeFile(copyFiles)}>
                   <FaCopy />
                 </Button>
               </div>
