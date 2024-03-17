@@ -16,6 +16,7 @@ import {
 } from "tauri-plugin-clipboard-api";
 
 import "./App.css";
+import { getFileNameFromUrl } from "./lib/utils";
 
 function App() {
   const [monitorRunning, setMonitorRunning] = useState<boolean>(false);
@@ -81,22 +82,20 @@ function App() {
           <TabsTrigger value="files">Files</TabsTrigger>
         </TabsList>
         <TabsContent value="text">
-          <ScrollArea className="h-[300px] w-[400px] rounded-md border p-4">
-            {localStore?.map((text, index) => (
-              <div className="p-2">
-                <div
-                  key={index}
-                  className="flex justify-between items-center m-2"
-                >
-                  <div>{text.substring(0, 70)}</div>
-                  <Button onClick={() => writeText(text)}>
-                    <FaCopy />
-                  </Button>
-                </div>
-                <Separator />
+          {localStore?.map((text, index) => (
+            <div className="p-2">
+              <div
+                key={index}
+                className="flex justify-between items-center m-2"
+              >
+                <div>{text.substring(0, 70)}</div>
+                <Button onClick={() => writeText(text)}>
+                  <FaCopy />
+                </Button>
               </div>
-            ))}
-          </ScrollArea>
+              <Separator />
+            </div>
+          ))}
         </TabsContent>
         <TabsContent value="files">
           {files?.map((copyFiles, index) => (
@@ -107,7 +106,7 @@ function App() {
               >
                 <div>
                   {copyFiles.map((file) => (
-                    <div>{file.substring(0, 70)} </div>
+                    <div>{getFileNameFromUrl(file)} </div>
                   ))}
                 </div>
                 <Button onClick={() => writeFile(copyFiles)}>
