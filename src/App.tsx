@@ -87,7 +87,7 @@ function App() {
                 key={index}
                 className="flex justify-between items-center m-2"
               >
-                <div>{text.substring(0, 70)}</div>
+                <div className="truncate ">{text.substring(0, 70)}</div>
                 <Button onClick={() => writeText(text)}>
                   <FaCopy />
                 </Button>
@@ -105,7 +105,7 @@ function App() {
               >
                 <div>
                   {copyFiles.map((file) => (
-                    <div>{getFileNameFromUrl(file)} </div>
+                    <div className="truncate ">{getFileNameFromUrl(file)} </div>
                   ))}
                 </div>
                 <Button onClick={() => writeFile(copyFiles)}>
