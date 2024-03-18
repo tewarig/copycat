@@ -4,6 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import { FileNameViewer } from "@/components/ui/fileNameViewer";
+import useThemeDetector from "@/lib/themeDetector";
 import { FaCopy } from "react-icons/fa";
 import {
   readText,
@@ -14,11 +15,14 @@ import {
   onTextUpdate,
   onFilesUpdate,
 } from "tauri-plugin-clipboard-api";
+import { useTheme } from "@/components/theme-provider";
 
 import "./App.css";
-import { getFileNameFromUrl } from "./lib/utils";
 
 function App() {
+  const isDarkTheme = useThemeDetector();
+  const { setTheme } = useTheme();
+
   const [monitorRunning, setMonitorRunning] = useState<boolean>(false);
   const [localStore, setLocalStore] = useState<string[]>();
   const [files, setFiles] = useState<string[][] | undefined>();
@@ -72,6 +76,15 @@ function App() {
       });
     }
   }, []);
+
+  //for system theme changes
+  useEffect(() => {
+    if (isDarkTheme) {
+      setTheme("dark");
+    } else {
+      setTheme("light");
+    }
+  }, [isDarkTheme]);
 
   return (
     <div className="flex-col justify-center items-center p-4">
