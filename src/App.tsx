@@ -16,6 +16,11 @@ import {
   onFilesUpdate,
 } from "tauri-plugin-clipboard-api";
 import { useTheme } from "@/components/theme-provider";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 
 import "./App.css";
 
@@ -99,9 +104,20 @@ function App() {
             <div className="p-2">
               <div
                 key={index}
-                className="flex justify-between items-center m-2"
+                className="flex justify-between items-center m-2 gap-8"
               >
-                <div className="truncate ">{text.substring(0, 70)}</div>
+                <div>
+                  <Popover>
+                    <PopoverTrigger>
+                      <div className="whitespace-nowrap overflow-hidden overflow-ellipsis max-w-[250px]">
+                        {text}
+                      </div>
+                    </PopoverTrigger>
+                    <PopoverContent>
+                      <div>{text}</div>
+                    </PopoverContent>
+                  </Popover>
+                </div>
                 <Button onClick={() => writeText(text)}>
                   <FaCopy />
                 </Button>
