@@ -3,6 +3,7 @@ import { invoke } from "@tauri-apps/api/tauri";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
+import { FileNameViewer } from "@/components/ui/fileNameViewer";
 import { FaCopy } from "react-icons/fa";
 import {
   readText,
@@ -104,9 +105,7 @@ function App() {
                 className="flex justify-between items-center m-2"
               >
                 <div>
-                  {copyFiles.map((file) => (
-                    <div className="truncate ">{getFileNameFromUrl(file)} </div>
-                  ))}
+                  <FileNameViewer files={copyFiles} />
                 </div>
                 <Button onClick={() => writeFile(copyFiles)}>
                   <FaCopy />
